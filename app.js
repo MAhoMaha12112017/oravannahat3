@@ -8,7 +8,7 @@ const targetCurrency = document.getElementById('targetCurrency');
 const fromto = document.getElementById('fromto');
 
 document.addEventListener("DOMContentLoaded", function(event) {
-  console.log("DOM fully loaded and parsed");
+
   // first versio: get from local json file
   const currencyValues = getCurrencyValues();
 });
@@ -69,44 +69,46 @@ function calculateResults(){
 
 function getCurrencyValues() {
   const xhr = new XMLHttpRequest();
-  let currencyArray = [];
 
-  xhr.open('GET', 'currencyvalues.json', true); // pitäiskö olla true ja muokata asynkroniseksi
+  xhr.open('GET', 'https://api.fixer.io/latest', true); 
 
   xhr.onload = function() {
     if (this.status === 200) {
-      const currencyValues = JSON.parse(this.responseText);
+      let currencyValues = JSON.parse(this.responseText); // object 
+      
+      // Only rates object needed
+      if(currencyValues) {
+        currencyValues = currencyValues.rates;
+      }
       // add to DOM
       listCurrencies(currencyValues);
+      console.log(currencyValues);
     }
   }
  
   xhr.send();
 
-  return currencyArray;
 }
 
 function listCurrencies(currencyValues) {
   if (currencyValues) {
-    console.log(currencyValues);
-    // loop currencies
-    currencyValues.forEach(currencyData => {
+    for (const prop in currencyValues) {
+      console.log(`${prop} = ${currencyValues[prop]}`);
       // create option element
       let from = document.createElement('option');
-      from.value = `${currencyData.rate}`;
-      from.appendChild(document.createTextNode(`${currencyData.name}`));
+      from.value = `${currencyValues[prop]}`;
+      from.appendChild(document.createTextNode(`${prop}`));
       // add to selects (from)
       selectCurrencylist.appendChild(from);
-    });
-    // loop currencies
-    currencyValues.forEach(currencyData => {
+    }
+    for (const prop in currencyValues) {
       // create option element
       let to = document.createElement('option');
-      to.value = `${currencyData.rate}`;
-      to.appendChild(document.createTextNode(`${currencyData.name}`));
+      to.value = `${currencyValues[prop]}`;
+      to.appendChild(document.createTextNode(`${prop}`));
       // add to selects (to)
       selectCurrencyTolist.appendChild(to);
-    });
+    }
   }
 }
 
